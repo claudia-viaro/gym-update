@@ -25,6 +25,7 @@ from gym import error, spaces, utils
 import pandas.testing as tm
 import math
 from sklearn.linear_model import LogisticRegression
+from scipy.stats import truncnorm
 
 #Gym environment - continuous
 
