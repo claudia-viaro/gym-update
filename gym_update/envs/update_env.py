@@ -132,7 +132,7 @@ class UpdateEnv(gym.Env):
     model = LogisticRegression().fit(patients_1[:, 1:3], np.ravel(patients_1[:, 0].astype(int)))
     thetas = np.array([model.coef_[0,0] , model.coef_[0,1], model.intercept_[0]]) #thetas[1] coef for Xs, thetas[2] coef for Xa
     
-    patients_4 = np.hstack([np.ones((size, 1)), patients_1[:, 1:3]])
+    patients_4 = np.hstack([np.ones((self.size, 1)), patients_1[:, 1:3]])
     Xsa_4 = np.matmul(patients_4, thetas[:, None])  # (sizex3) x (3x1) = (size, 1)
     rho2_4 = (1/(1+np.exp(-Xsa_4)))  #prob of Y=1
     rho2_4 = rho2.squeeze() # shape: size (risk of each patient)
