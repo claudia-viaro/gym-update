@@ -18,7 +18,7 @@ give reward equal to average risk of admission, using predicted Y, initial param
 (shouldn't I fit a new logit-link? parameters are now diff?)
 
 # To install
-- git clone https://github.com/claudia-viaro/model-update.git
+- git clone https://github.com/claudia-viaro/gym-update.git
 - cd gym-update
 - !pip install gym-update
 - import gym
@@ -27,7 +27,7 @@ give reward equal to average risk of admission, using predicted Y, initial param
 
 # To change version
 - change version to, e.g., 1.0.7 from setup.py file
-- git clone https://github.com/claudia-viaro/model-update.git
+- git clone https://github.com/claudia-viaro/gym-update.git
 - cd gym-update
 - python setup.py sdist bdist_wheel
 - twine check dist/*
