@@ -119,7 +119,7 @@ class UpdateEnv(gym.Env):
     #self.Ynew_cumul = np.mean(list_new[["Prob1"]])
     
     patients_2= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xa, 3rd column Xs
-    Xsa = np.matmul(self.patients_2, action[:, None])  # (sizex3) x (3x1) = (size, 1)
+    Xsa = np.matmul(patients_2, action[:, None])  # (sizex3) x (3x1) = (size, 1)
     rho2 = (1/(1+np.exp(-Xsa)))  #prob of Y=1
     rho2 = rho2.squeeze() # shape: size (risk of each patient)
     Xa = patients_2[:, 1] # shape: size
