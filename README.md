@@ -19,8 +19,8 @@ give reward equal to average risk of admission, using predicted Y, initial param
 
 # To install
 - git clone https://github.com/claudia-viaro/model-update.git
-- cd gym-contin
-- !pip install gym-contin
+- cd gym-update
+- !pip install gym-update
 - import gym
 - import gym_update
 - env =gym.make('update-v0')
@@ -28,7 +28,7 @@ give reward equal to average risk of admission, using predicted Y, initial param
 # To change version
 - change version to, e.g., 1.0.7 from setup.py file
 - git clone https://github.com/claudia-viaro/model-update.git
-- cd gym_update
+- cd gym-update
 - python setup.py sdist bdist_wheel
 - twine check dist/*
 - twine upload --repository-url https://upload.pypi.org/legacy/ dist/*
