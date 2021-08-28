@@ -104,7 +104,7 @@ class UpdateEnv(gym.Env):
     patients2 = np.hstack([Y, np.reshape(Xa, (self.size,1)), np.reshape(patients1[:, 2], (self.size,1))]) 
     #run logit model to get coefficients, because their risk has changed (or use acitons to get risk using just new Xa??)
     model2 = LogisticRegression().fit(patients2[:, 1:3], np.ravel(patients2[:, 0].astype(int)))
-    thetas2 = np.array([model.intercept_[0], model.coef_[0,0] , model.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xa, thetas2[2] coef for Xs
+    thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xa, thetas2[2] coef for Xs
     
     patients3 = np.hstack([np.ones((self.size, 1)), patients2[:, 1:3]])
     rho3 = (1/(1+np.exp(-(np.matmul(patients3, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
@@ -127,7 +127,7 @@ class UpdateEnv(gym.Env):
     #without action - simple logit on inital (non-intervened) dataset with Y, old Xa, Xs
     patients4 = np.hstack([Y, self.patients]) #shape (50, 3), 1st column of Y, 2nd columns Xa, 3rd column Xs
     model4 = LogisticRegression().fit(patients4[:, 1:3], np.ravel(patients4[:, 0].astype(int)))
-    thetas4 = np.array([model.intercept_[0], model.coef_[0,0] , model.coef_[0,1]]) #thetas4[0]: intercept; thetas4[1]: coef for Xa, thetas4[2] coef for Xs
+    thetas4 = np.array([model4.intercept_[0], model4.coef_[0,0] , model4.coef_[0,1]]) #thetas4[0]: intercept; thetas4[1]: coef for Xa, thetas4[2] coef for Xs
     rho4 = (1/(1+np.exp(-(np.matmul(patients1, thetas4[:, None])))))  #prob of Y=1  #(sizex3) x (3x1) = (size, 1) #use patients1 because it's fine, it has self.patients
     rho4 = rho4.squeeze() # shape: size, individual risk
     rho4_list = rho4.tolist()
