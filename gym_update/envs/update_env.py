@@ -91,35 +91,47 @@ class UpdateEnv(gym.Env):
 
     theta0, theta1, theta2 = action    
         
-    patients_2= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xa, 3rd column Xs
-    Xsa = np.matmul(patients_2, action[:, None])  # (sizex3) x (3x1) = (size, 1)
-    rho2 = (1/(1+np.exp(-Xsa)))  #prob of Y=1
-    rho2 = rho2.squeeze() # shape: size (risk of each patient)
-    Xa = patients_2[:, 1] # shape: size
-    g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho2**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho2**2)
+    patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xa, 3rd column Xs
+    rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
+    rho1 = rho1.squeeze() # shape: size, individual risk
+    Xa = patients1[:, 1] # shape: size
+    g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
     Xa = g2 # 50
     
-    #calculate reward: calc first the risk
-    patients_1 = np.hstack([np.random.binomial(1, 0.5, (self.size, 1)), np.reshape(Xa, (self.size,1)), np.reshape(patients_2[:, 2], (self.size,1))]) 
-    #run logit model to get coefficients, because their risk has changed, or use acitons to get risk using just new Xa??
-    model = LogisticRegression().fit(patients_1[:, 1:3], np.ravel(patients_1[:, 0].astype(int)))
-    thetas = np.array([model.coef_[0,0] , model.coef_[0,1], model.intercept_[0]]) #thetas[1] coef for Xs, thetas[2] coef for Xa
+    #calculate reward
+    #get new coefficients given the covariate Xa has changed by running logit 
+    Y = np.random.binomial(1, 0.5, (self.size, 1))
+    patients2 = np.hstack([Y, np.reshape(Xa, (self.size,1)), np.reshape(patients1[:, 2], (self.size,1))]) 
+    #run logit model to get coefficients, because their risk has changed (or use acitons to get risk using just new Xa??)
+    model2 = LogisticRegression().fit(patients2[:, 1:3], np.ravel(patients2[:, 0].astype(int)))
+    thetas2 = np.array([model.intercept_[0], model.coef_[0,0] , model.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xa, thetas2[2] coef for Xs
     
-    patients_4 = np.hstack([np.ones((self.size, 1)), patients_1[:, 1:3]])
-    Xsa_4 = np.matmul(patients_4, thetas[:, None])  # (sizex3) x (3x1) = (size, 1)
-    rho2_4 = (1/(1+np.exp(-Xsa_4)))  #prob of Y=1
-    rho2_4 = rho2.squeeze() # shape: size (risk of each patient)
-    self.Ynew_cumul = np.mean(rho2_4)
+    patients3 = np.hstack([np.ones((self.size, 1)), patients2[:, 1:3]])
+    rho3 = (1/(1+np.exp(-(np.matmul(patients3, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+    rho3 = rho3.squeeze() # shape: size, individual risk
+    
+    #transform rho3 in a list to print individual risk (and not just mean risk of the hospitak's patient)
+    rho3_list = rho3.tolist()
+    self.mean_r = np.mean(rho3)
     
     #check if horizon is over, otherwise keep on going
     if self.horizon <= 0:
       done = True
     else:
       done = False
-    #depending on the value of self.state, apply a reward
-    reward = self.Ynew_cumul 
+    #set the reward equal to the mean hospitalization rate
+    reward = self.mean_r 
         
     self.state = self.patients[self.random_indices, :].reshape(2,) #not sure if with or without reshape
+    
+    #without action - simple logit on inital (non-intervened) dataset with Y, old Xa, Xs
+    patients4 = np.hstack([Y, self.patients]) #shape (50, 3), 1st column of Y, 2nd columns Xa, 3rd column Xs
+    model4 = LogisticRegression().fit(patients4[:, 1:3], np.ravel(patients4[:, 0].astype(int)))
+    thetas4 = np.array([model.intercept_[0], model.coef_[0,0] , model.coef_[0,1]]) #thetas4[0]: intercept; thetas4[1]: coef for Xa, thetas4[2] coef for Xs
+    rho4 = (1/(1+np.exp(-(np.matmul(patients1, thetas4[:, None])))))  #prob of Y=1  #(sizex3) x (3x1) = (size, 1) #use patients1 because it's fine, it has self.patients
+    rho4 = rho4.squeeze() # shape: size, individual risk
+    rho4_list = rho4.tolist()
+    reward4 = np.mean(rho4)
  
     
     #reduce the horizon
@@ -127,13 +139,14 @@ class UpdateEnv(gym.Env):
     
     #set placeholder for infos
     info ={}    
-    return self.state, reward, thetas, done, {}
+    return self.state, reward, rho3_list, rho4_list, reward4, done, {}
 
 #reset state and horizon    
   def reset(self):
     self.horizon = 200
     
-    self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2)
+    #define dataset of patients with actionable covariate Xa and non-actionable covariate Xs
+    self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xa, second is Xs
     
        
     self.random_indices = np.random.choice(self.size, size=1, replace=False)
