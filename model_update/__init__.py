@@ -13,7 +13,7 @@
 from gym.envs.registration import register
 
 register(
-    id='m.update-v0',
-    entry_point='gym_m.update.envs:ModelUpdateEnv',
+    id='update-v0',
+    entry_point='gym_update.envs:UpdateEnv',
 )
 
