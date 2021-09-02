@@ -18,7 +18,7 @@ Observation space: self.observation_space = spaces.Box(
 New population of patients at every episode
 This is represented by a cross-sectional dataset with variables X_a, X_s, Y and N observations (# patients);
 X_a, X_s follows a truncated normal distribution (a=0, b=inf)
-Y follows a Bernoulli distribution Ber(p), p=0.5
+Y follows a Binomial distribution Bin(p, n), p=0.5
 
 #### The agent takes a step in the environment:
 
