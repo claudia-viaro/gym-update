@@ -1,21 +1,39 @@
-# model_update
+# Gym-style API environment
 
-The domain features a continuos state and a dicrete action space.
 
-The environment initializes:
+#### The domain features a continuos state and action space:
+Action space: self.action_space = spaces.Box(
+                                      low = np.float32(-np.array([2, 2, 2])),
+                                      high = np.float32(np.array([2, 2, 2])))
+*the actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients            
 
-cross-sectional dataset with variables X_a, X_s, Y and N observations;
-logit model fitted on the dataset, retrieving parameters \theta_0, \theta_1, \theta_2;
-The agent:
+Observation space: self.observation_space = spaces.Box(
+                                                low=np.array([0], 
+                                                high=np.array([1], 
+                                                dtype=np.float32)            
+*the states represent values for the covariates X_a, X_s
 
-sees a patient (sample observation);
-predict his risk of admission \rho, using initialized parameters
-intervene on X_a
-sample an action a in [0,1]
-compute g(a, X_a) = newX_a
-intervene on X_a by updating it to newX_a
-give reward equal to average risk of admission, using predicted Y, initial parameters and sampled values
-(shouldn't I fit a new logit-link? parameters are now diff?)
+#### The environment resets:
+
+New population of patients at every episode
+This is represented by a cross-sectional dataset with variables X_a, X_s, Y and N observations (# patients);
+X_a, X_s follows a truncated normal distribution (a=0, b=inf)
+Y follows a Bernoulli distribution Ber(p), p=0.5
+
+#### The agent takes a step in the environment:
+
+He sees all patients and take an action a={theta_0, theta_1, theta_2}
+He runs a logistic regression on the patients using the action taken
+He computes the logit risk of each observation (\rho_1)
+He computes the g value, using \rho_1 and X_a
+He replaces the initial X_a with the g value, for each observation
+
+He runs a logistic regression on the patients as a covariate has changed in value, retrieve new theta parameters (thetas2)
+He computes the logit risk of each observation (\rho_2)
+He computes the mean logit risk, which is the reward given by the environment back to the agent (as a result of the 'good deed' of the action)
+
+The reward represents the mean hospitalization rate of the 'intervened' population of patients
+Then the episode ends and the environment resets
 
 # To install
 - git clone https://github.com/claudia-viaro/gym-update.git
