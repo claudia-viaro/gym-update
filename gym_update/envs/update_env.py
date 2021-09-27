@@ -37,7 +37,7 @@ class UpdateEnv(gym.Env):
     self.df = pd.DataFrame(dict(
             Xs=truncnorm.rvs(a=0,b=math.inf,size=self.size),
             Xa=truncnorm.rvs(a=0,b=math.inf,size=self.size),
-            Y=np.random.binomial(1, 0.05, self.size)))
+            Y=np.random.binomial(1, 0.2, self.size)))
     self.model = LogisticRegression().fit(self.df[["Xs", "Xa"]], np.ravel(self.df[["Y"]]))
 
     #extract theta parameters from the fitted logistic
@@ -100,8 +100,8 @@ class UpdateEnv(gym.Env):
     
     #calculate reward
     #get new coefficients given the covariate Xa has changed by running logit 
-    Y = np.random.binomial(1, 0.05, (self.size, 1))
-    patients2 = np.hstack([Y, np.reshape(patients1[:, 2], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
+    Y = np.random.binomial(1, 0.2, (self.size, 1))
+    patients2 = np.hstack([Y, np.reshape(patients1[:, 1], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
     #run logit model to get coefficients, because their risk has changed (or use acitons to get risk using just new Xa??)
     model2 = LogisticRegression().fit(patients2[:, 1:3], np.ravel(patients2[:, 0].astype(int)))
     thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
