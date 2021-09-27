@@ -31,17 +31,17 @@ from scipy.stats import truncnorm
 
 class UpdateEnv(gym.Env):
   def __init__(self):
-    self.size = 50
+    self.size = 2000
     #get initial values for theta's
     #fit logit model to data
     self.df = pd.DataFrame(dict(
-            Xs=np.random.normal(0,1,size=self.size),
-            Xa=np.random.normal(0,1,size=self.size),
-            Y=np.random.binomial(1, 0.5, self.size)))
+            Xs=truncnorm.rvs(a=0,b=math.inf,size=self.size),
+            Xa=truncnorm.rvs(a=0,b=math.inf,size=self.size),
+            Y=np.random.binomial(1, 0.05, self.size)))
     self.model = LogisticRegression().fit(self.df[["Xs", "Xa"]], np.ravel(self.df[["Y"]]))
 
     #extract theta parameters from the fitted logistic
-    self.thetas = np.array([self.model.coef_[0,0] , self.model.coef_[0,1], self.model.intercept_[0]]) #thetas[1] coef for Xs, thetas[2] coef for Xa
+    self.thetas = np.array([self.model.intercept_[0], self.model.coef_[0,0] , self.model.coef_[0,1]]) #theta[0] coef for intercept, thetas[1] coef for Xs, thetas[2] coef for Xa
 
     #set range for obs space
     #? not all values should be equaly likely to be sampled, this is missing here
@@ -91,22 +91,22 @@ class UpdateEnv(gym.Env):
 
     theta0, theta1, theta2 = action    
         
-    patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xa, 3rd column Xs
+    patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xs, 3rd column Xa
     rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
     rho1 = rho1.squeeze() # shape: size, individual risk
     Xa = patients1[:, 1] # shape: size
     g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
-    Xa = g2 # 50
+    Xa = g2 # size
     
     #calculate reward
     #get new coefficients given the covariate Xa has changed by running logit 
-    Y = np.random.binomial(1, 0.5, (self.size, 1))
-    patients2 = np.hstack([Y, np.reshape(Xa, (self.size,1)), np.reshape(patients1[:, 2], (self.size,1))]) 
+    Y = np.random.binomial(1, 0.05, (self.size, 1))
+    patients2 = np.hstack([Y, np.reshape(patients1[:, 2], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
     #run logit model to get coefficients, because their risk has changed (or use acitons to get risk using just new Xa??)
     model2 = LogisticRegression().fit(patients2[:, 1:3], np.ravel(patients2[:, 0].astype(int)))
-    thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xa, thetas2[2] coef for Xs
+    thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
     
-    patients3 = np.hstack([np.ones((self.size, 1)), patients2[:, 1:3]])
+    patients3 = np.hstack([np.ones((self.size, 1)), patients2[:, 1:3]]) #1, Xs, Xa
     rho3 = (1/(1+np.exp(-(np.matmul(patients3, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
     rho3 = rho3.squeeze() # shape: size, individual risk
     
@@ -125,9 +125,9 @@ class UpdateEnv(gym.Env):
     self.state = self.patients[self.random_indices, :].reshape(2,) #not sure if with or without reshape
     
     #without action - simple logit on inital (non-intervened) dataset with Y, old Xa, Xs
-    patients4 = np.hstack([Y, self.patients]) #shape (50, 3), 1st column of Y, 2nd columns Xa, 3rd column Xs
+    patients4 = np.hstack([Y, self.patients]) #shape (size, 3), 1st column of Y, 2nd columns Xs, 3rd column Xa
     model4 = LogisticRegression().fit(patients4[:, 1:3], np.ravel(patients4[:, 0].astype(int)))
-    thetas4 = np.array([model4.intercept_[0], model4.coef_[0,0] , model4.coef_[0,1]]) #thetas4[0]: intercept; thetas4[1]: coef for Xa, thetas4[2] coef for Xs
+    thetas4 = np.array([model4.intercept_[0], model4.coef_[0,0] , model4.coef_[0,1]]) #thetas4[0]: intercept; thetas4[1]: coef for Xs, thetas4[2] coef for Xa
     rho4 = (1/(1+np.exp(-(np.matmul(patients1, thetas4[:, None])))))  #prob of Y=1  #(sizex3) x (3x1) = (size, 1) #use patients1 because it's fine, it has self.patients
     rho4 = rho4.squeeze() # shape: size, individual risk
     rho4_list = rho4.tolist()
@@ -146,7 +146,7 @@ class UpdateEnv(gym.Env):
     self.horizon = 200
     
     #define dataset of patients with actionable covariate Xa and non-actionable covariate Xs
-    self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xa, second is Xs
+    self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
     
        
     self.random_indices = np.random.choice(self.size, size=1, replace=False)
