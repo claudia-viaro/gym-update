@@ -69,9 +69,10 @@ class UpdateEnv(gym.Env):
     
     #set OBSERVATION SPACE
     #it is made of values for Xa, Xs for each observation
-    self.observation_space = spaces.Box(low=self.min_Xas, 
-                                   high=self.max_Xas, 
-                                   dtype=np.float32)
+    #self.observation_space = spaces.Box(low=self.min_Xas, 
+    #                               high=self.max_Xas, 
+    #                               dtype=np.float32)
+    self.observation_space = spaces.Discrete(self.size)
     
     #set an initial state
     self.state=None 
@@ -150,7 +151,7 @@ class UpdateEnv(gym.Env):
     
        
     self.random_indices = np.random.choice(self.size, size=1, replace=False)
-    self.state = self.patients[self.random_indices, :].reshape(2,) #not sure if with or without reshape
+    self.state = self.patients[self.random_indices, :].reshape(2,) 
 
     
     
