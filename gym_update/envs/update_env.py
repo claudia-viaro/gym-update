@@ -139,7 +139,7 @@ class UpdateEnv(gym.Env):
     
     #set placeholder for infos
     info ={}    
-    return self.state, reward,  reward4, rho3, rho4, done, {}
+    return self.state, reward,  reward4, rho3, rho4, thetas4, done, {}
 
 #reset state and horizon    
   def reset(self):
