@@ -19,9 +19,6 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gym
 from gym import error, spaces, utils
-#from gym.utils import seeding
-#import statsmodels.api as sm
-#import statsmodels.formula.api as smf
 import pandas.testing as tm
 import math
 from sklearn.linear_model import LogisticRegression
@@ -43,26 +40,14 @@ class UpdateEnv(gym.Env):
     #extract theta parameters from the fitted logistic
     self.thetas = np.array([self.model.intercept_[0], self.model.coef_[0,0] , self.model.coef_[0,1]]) #theta[0] coef for intercept, thetas[1] coef for Xs, thetas[2] coef for Xa
 
-    #set range for obs space
-    #? not all values should be equaly likely to be sampled, this is missing here
-    #? can I restrict the sampling space when an episode is run?
-    self.minXa1 = pd.to_numeric(min(self.df[["Xa"]].values.flatten()))
-    self.minXs1 = pd.to_numeric(min(self.df[["Xs"]].values.flatten()))
-    
-    self.maxXa1 = pd.to_numeric(max(self.df[["Xa"]].values.flatten()))
-    self.maxXs1 = pd.to_numeric(max(self.df[["Xs"]].values.flatten()))
-    
-    self.min_Xas=np.array([np.float32(self.minXa1), np.float32(self.minXs1)])
-    self.max_Xas=np.array([np.float32(self.maxXa1), np.float32(self.maxXs1)])
-
+    #set range for obs space    
+    self.min_Xas=np.array([0, 0])
+    self.max_Xas=np.array([math.inf, math.inf])
 
     #set range for action space
-    self.high_th = np.array([2, 2, 2])
+    self.high_th = np.array([4, 4, 4])
    
     #set ACTION SPACE
-    #space.box handles continuous action space
-    #it needs values for the bounds and the shape: low, high, shape (as in a tensor)
-    #the bounds for a logit transformation of X's are 0, 1 (or min and max of the logit transform with initial values for theta)
     self.action_space = spaces.Box(
             low = np.float32(-self.high_th),
             high = np.float32(self.high_th))
@@ -77,16 +62,13 @@ class UpdateEnv(gym.Env):
     self.state=None 
 
     #introduce some length
-    self.horizon=200
- 
+    self.horizon=200 
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]    
 
 #take an action with the environment
-#it returns the next observation, the immediate reward, whether the episode is over (done) and additional information    
-#"action" argument is one value in the range of the action space (logit transform)
   def step(self, action):
 
     theta0, theta1, theta2 = action    
