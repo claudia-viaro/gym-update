@@ -74,7 +74,7 @@ class UpdateEnv(gym.Env):
     #patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
     #Xa = patients2[:, 1] # shape: size
     
-    Xa = patients1[:, 1] # shape: size
+    Xa = patients1[:, 2] # shape: size
     g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
     Xa = g2 # size
     
