@@ -45,8 +45,7 @@ class UpdateEnv(gym.Env):
     #set OBSERVATION SPACE
     #it is made of values for Xa, Xs for each observation
     self.observation_space = spaces.Box(low=np.float32(self.min_Xas),
-                                        high=np.float32(self.max_Xas),
-                                        dtype=np.float32)
+                                        high=np.float32(self.max_Xas))
         
     #set an initial state
     self.state=None 
@@ -75,7 +74,7 @@ class UpdateEnv(gym.Env):
     #e=1, t=0
     #see new patients
     patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
-    Xa = patients2[:, 2] # shape: size
+    Xa = patients2[:, 1] # shape: size
     g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
     
     #e=1, t=1
