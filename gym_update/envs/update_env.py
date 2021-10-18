@@ -60,35 +60,50 @@ class UpdateEnv(gym.Env):
 
 #take an action with the environment
   def step(self, action):
-
-    theta0, theta1, theta2 = action    
+    #e=0, t=0
     
-    #e=0, t=0,1
+    #e=0, t=1
+    
+    #see actions
+    theta0, theta1, theta2 = action    
+        
     #see patients
     patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xs, 3rd column Xa
     rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
     rho1 = rho1.squeeze() # shape: size, individual risk
     
-    #e>0, t=0
+    #e=1, t=0
     #see new patients
-    #patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
-    #Xa = patients2[:, 1] # shape: size
-    
-    Xa = patients1[:, 2] # shape: size
+    patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
+    Xa = patients2[:, 2] # shape: size
     g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
+    
+    #e=1, t=1
     Xa = g2 # size
+    Y = np.random.binomial(1, 0.2, (self.size, 1))
+    patients3 = np.hstack([Y, np.reshape(patients2[:, 0], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
+    model2 = LogisticRegression().fit(patients3[:, 1:3], np.ravel(patients3[:, 0].astype(int)))
+    thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
+    patients4 = np.hstack([np.ones((self.size, 1)), patients3[:, 1:3]]) #1, Xs, Xa
+    rho3 = (1/(1+np.exp(-(np.matmul(patients4, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+    
+    #####################OLD part#########################
+    #Xa = patients1[:, 2] # shape: size
+    #g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
+    #Xa = g2 # size
     
     #calculate reward
     #get new coefficients given the covariate Xa has changed by running logit 
-    Y = np.random.binomial(1, 0.2, (self.size, 1))
-    patients2 = np.hstack([Y, np.reshape(patients1[:, 1], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
+    #Y = np.random.binomial(1, 0.2, (self.size, 1))
+    #patients2 = np.hstack([Y, np.reshape(patients1[:, 1], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
     #run logit model to get coefficients, because their risk has changed (or use acitons to get risk using just new Xa??)
-    model2 = LogisticRegression().fit(patients2[:, 1:3], np.ravel(patients2[:, 0].astype(int)))
-    thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
+    #model2 = LogisticRegression().fit(patients2[:, 1:3], np.ravel(patients2[:, 0].astype(int)))
+    #thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
     
-    patients3 = np.hstack([np.ones((self.size, 1)), patients2[:, 1:3]]) #1, Xs, Xa
-    rho3 = (1/(1+np.exp(-(np.matmul(patients3, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
-    rho3 = rho3.squeeze() # shape: size, individual risk
+    #patients3 = np.hstack([np.ones((self.size, 1)), patients2[:, 1:3]]) #1, Xs, Xa
+    #rho3 = (1/(1+np.exp(-(np.matmul(patients3, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+    #rho3 = rho3.squeeze() # shape: size, individual risk
+    #####################OLD part#########################
     
     #transform rho3 in a list to print individual risk (and not just mean risk of the hospitak's patient)
     rho3_list = rho3.tolist()
@@ -112,6 +127,7 @@ class UpdateEnv(gym.Env):
     rho4 = rho4.squeeze() # shape: size, individual risk
     rho4_list = rho4.tolist()
     reward4 = np.mean(rho4)
+    
  
     
     #reduce the horizon
