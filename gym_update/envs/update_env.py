@@ -44,8 +44,8 @@ class UpdateEnv(gym.Env):
     
     #set OBSERVATION SPACE
     #it is made of values for Xa, Xs for each observation
-    self.observation_space = spaces.Box(low=self.min_Xas,
-                                        high=self.max_Xas,
+    self.observation_space = spaces.Box(low=np.float32(self.min_Xas),
+                                        high=np.float32(self.max_Xas),
                                         dtype=np.float32)
         
     #set an initial state
