@@ -28,21 +28,7 @@ from scipy.stats import truncnorm
 
 class UpdateEnv(gym.Env):
   def __init__(self):
-    self.size = 2000
-    #get initial values for theta's
-    #fit logit model to data
-    self.df = pd.DataFrame(dict(
-            Xs=truncnorm.rvs(a=0,b=math.inf,size=self.size),
-            Xa=truncnorm.rvs(a=0,b=math.inf,size=self.size),
-            Y=np.random.binomial(1, 0.2, self.size)))
-    self.model = LogisticRegression().fit(self.df[["Xs", "Xa"]], np.ravel(self.df[["Y"]]))
-
-    #extract theta parameters from the fitted logistic
-    self.thetas = np.array([self.model.intercept_[0], self.model.coef_[0,0] , self.model.coef_[0,1]]) #theta[0] coef for intercept, thetas[1] coef for Xs, thetas[2] coef for Xa
-
-    #set range for obs space    
-    self.min_Xas=np.array([0, 0])
-    self.max_Xas=np.array([math.inf, math.inf])
+    self.size = 2000     
 
     #set range for action space
     self.high_th = np.array([4, 4, 4])
@@ -51,6 +37,10 @@ class UpdateEnv(gym.Env):
     self.action_space = spaces.Box(
             low = np.float32(-self.high_th),
             high = np.float32(self.high_th))
+    
+    #set range for obs space    
+    self.min_Xas=np.array([0, 0])
+    self.max_Xas=np.array([math.inf, math.inf])
     
     #set OBSERVATION SPACE
     #it is made of values for Xa, Xs for each observation
@@ -62,7 +52,7 @@ class UpdateEnv(gym.Env):
     self.state=None 
 
     #introduce some length
-    self.horizon=200 
+    self.horizon=2000 
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
@@ -72,10 +62,18 @@ class UpdateEnv(gym.Env):
   def step(self, action):
 
     theta0, theta1, theta2 = action    
-        
+    
+    #e=0, t=0,1
+    #see patients
     patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xs, 3rd column Xa
     rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
     rho1 = rho1.squeeze() # shape: size, individual risk
+    
+    #e>0, t=0
+    #see new patients
+    #patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
+    #Xa = patients2[:, 1] # shape: size
+    
     Xa = patients1[:, 1] # shape: size
     g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
     Xa = g2 # size
@@ -125,9 +123,9 @@ class UpdateEnv(gym.Env):
 
 #reset state and horizon    
   def reset(self):
-    self.horizon = 200
+    self.horizon = 2000
     
-    #define dataset of patients with actionable covariate Xa and non-actionable covariate Xs
+    #define dataset of patients with non-actionable covariate Xs and actionable covariate Xa
     self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
     
        
