@@ -59,32 +59,39 @@ class UpdateEnv(gym.Env):
 
 #take an action with the environment
   def step(self, action):
+    #MODEL FITTING CYCLE    
     #e=0, t=0
+    #see patients (from reset function) (Xa(0), Xs(0)), no intervention
     
-    #e=0, t=1
-    
-    #see actions
-    theta0, theta1, theta2 = action    
-        
-    #see patients
+    #e=0, t=1    
+    #see same patients (Xa(1), Xs(1))=(Xa(0), Xs(0)) because no intervention occurred but this only at e=0
+    #see Y    
+    #HERE. instead of retrieving thetas from fitting of model on (Xa, Xs, Y) we take actions from NN
+    theta0, theta1, theta2 = action            
+    #compute rho
     patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xs, 3rd column Xa
     rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
     rho1 = rho1.squeeze() # shape: size, individual risk
     
     #e=1, t=0
-    #see new patients
+    #see new patients (Xa(0), Xs(0))
     patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
     Xa = patients2[:, 1] # shape: size
+    #apply intervention and use rho from previous episode. g(rho_{e-1}, Xa(0))
     g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-rho1**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(rho1**2)
     
     #e=1, t=1
+    #update Xa(0) to Xa(1) with intervention. Xa(1)=g(rho_{e-1}, Xa(0))
     Xa = g2 # size
     Y = np.random.binomial(1, 0.2, (self.size, 1))
     patients3 = np.hstack([Y, np.reshape(patients2[:, 0], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
     model2 = LogisticRegression().fit(patients3[:, 1:3], np.ravel(patients3[:, 0].astype(int)))
+    #compute rho by fitting model
     thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
     patients4 = np.hstack([np.ones((self.size, 1)), patients3[:, 1:3]]) #1, Xs, Xa
     rho3 = (1/(1+np.exp(-(np.matmul(patients4, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+    
+    #HERE. should repeat only dynamics of episode 1
     
     #####################OLD part#########################
     #Xa = patients1[:, 2] # shape: size
