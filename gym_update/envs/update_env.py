@@ -51,7 +51,7 @@ class UpdateEnv(gym.Env):
     self.state=None 
 
     #introduce some length
-    self.horizon=2000 
+    self.horizon=200
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
@@ -138,7 +138,7 @@ class UpdateEnv(gym.Env):
 
 #reset state and horizon    
   def reset(self):
-    self.horizon = 2000
+    self.horizon = 200
     
     #define dataset of patients with non-actionable covariate Xs and actionable covariate Xa
     self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
