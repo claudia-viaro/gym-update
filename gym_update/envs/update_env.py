@@ -102,7 +102,7 @@ class UpdateEnv(gym.Env):
     else:
       done = False
     #set the reward equal to the mean hospitalization rate
-    reward =1  
+    reward = np.mean(rho_mean)
         
     self.state = self.patients[self.random_indices, :].reshape(2,) #not sure if with or without reshape
     
