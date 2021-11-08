@@ -16,7 +16,7 @@ class UpdateEnv(gym.Env):
     self.size = 2000     
 
     #set range for action space
-    self.high_th = np.array([4, 4, 4])
+    self.high_th = np.array([2, 2, 2])
    
     #set ACTION SPACE
     self.action_space = spaces.Box(
