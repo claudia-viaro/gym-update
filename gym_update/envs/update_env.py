@@ -64,7 +64,7 @@ class UpdateEnv(gym.Env):
     patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xs, 3rd column Xa
     rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
     rho1 = rho1.squeeze() # shape: size, individual risk
-    rho1_mean =  np.mean(rho1.numpy())
+    rho1_mean =  np.mean(rho1)
 
     list1[:,0]=rho1
     rho_mean.append(rho1_mean)
