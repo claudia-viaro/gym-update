@@ -83,17 +83,17 @@ class UpdateEnv(gym.Env):
       Xa = g2 # size
       Y = np.random.binomial(1, 0.2, (self.size, 1))
       patients3 = np.hstack([Y, np.reshape(patients2[:, 0], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
-      model2 = LogisticRegression().fit(patients3[:, 1:3], np.ravel(patients3[:, 0].astype(int)))
+      model3 = LogisticRegression().fit(patients3[:, 1:3], np.ravel(patients3[:, 0].astype(int)))
       #compute rho by fitting model
-      thetas2 = np.array([model2.intercept_[0], model2.coef_[0,0] , model2.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
+      thetas3 = np.array([model3.intercept_[0], model3.coef_[0,0] , model3.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
       patients4 = np.hstack([np.ones((self.size, 1)), patients3[:, 1:3]]) #1, Xs, Xa
-      rho3 = (1/(1+np.exp(-(np.matmul(patients4, thetas2[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
-      rho3=rho3.squeeze() 
-      rho3_mean =  np.mean(rho3)
+      rho4 = (1/(1+np.exp(-(np.matmul(patients4, thetas3[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+      rho4=rho4.squeeze() 
+      rho4_mean =  np.mean(rho4)
   
-      list1[:, i+1]=rho3
-      rho_mean.append(rho3_mean)  
-      theta_list.append(thetas2)
+      list1[:, i+1]=rho4
+      rho_mean.append(rho4_mean)  # mean reward in a cycle
+      theta_list.append(thetas4) # list of all thetas assigned in a cycle
       #HERE. should repeat only dynamics of episode 1    
       
     #check if horizon is over, otherwise keep on going
@@ -106,10 +106,23 @@ class UpdateEnv(gym.Env):
         
     self.state = self.patients[self.random_indices, :].reshape(2,) #not sure if with or without reshape
     
+    
+    #without action - simple logit on inital (non-intervened) dataset with Y, old Xa, Xs
+    patients5 = np.hstack([Y, self.patients]) #shape (50, 3), 1st column of Y, 2nd columns Xs, 3rd column Xa
+    model5 = LogisticRegression(fit_intercept=False).fit(patients5[:, 1:3], np.ravel(patients5[:, 0].astype(int)))
+    thetas5 = np.array([model5.coef_[0,0] , model5.coef_[0,1]]) #thetas5[0]: coef for Xs, thetas4[1] coef for Xa
+    rho5 = (1/(1+np.exp(-(np.matmul(patients1, thetas5[:, None])))))  #prob of Y=1  #(sizex3) x (3x1) = (size, 1) #use patients1 because it's fine, it has self.patients
+    rho5 = rho5.squeeze() # shape: size, individual risk
+    rho5_list = rho5.tolist()
+    reward5 = np.mean(rho5)
+    
+    
     #set placeholder for infos
     info ={}    
-    return self.state, reward, theta_list[0], theta_list[-1], rho_mean[-1], done, {}
-
+    return self.state, reward, theta_list[0], theta_list[-1], reward5, done, {}
+    # return state, reward (mean of population reward across all iterations),
+    # first action assigned, last action assigned, naive reward
+    
 #reset state and horizon    
   def reset(self):
     self.horizon = 200
