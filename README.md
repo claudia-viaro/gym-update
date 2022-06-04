@@ -21,7 +21,9 @@ This is represented by a cross-sectional dataset with variables X_a, X_s, Y and 
 X_a, X_s follows a truncated normal distribution (a=0, b=inf) <br />
 Y follows a Binomial distribution Bin(p, n), p=0.5 <br />
 
-We are interested in observing the behaviour of ![E[Y=1|X]=f(b_0 + b_1 X_a + b_2 X_s)](https://latex.codecogs.com/svg.latex?\Large&space)   
+We are interested in observing the behaviour of   
+![E[Y=1|X]=f(b_0 + b_1 X_a + b_2 X_s)](https://latex.codecogs.com/svg.latex?x%3D%5Cfrac%7B-b%5Cpm%5Csqrt%7Bb%5E2-4ac%7D%7D%7B2a%7D)
+
 
 #### The agent takes a step in the environment and:
 
