@@ -14,7 +14,6 @@ Observation space: `self.observation_space = spaces.Box(
                                                 dtype=np.float32)  `          
 *the states represent values for the covariates X_a, X_s
 
-#### The environment resets:
 
 New population of patients at every episode <br />
 This is represented by a cross-sectional dataset with variables ![equation](https://latex.codecogs.com/svg.image?Y,%20X_a,%20X_s) and ![image](https://latex.codecogs.com/svg.image?N) observations (# patients): ![image](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
@@ -24,20 +23,28 @@ This is represented by a cross-sectional dataset with variables ![equation](http
 We are interested in observing the behaviour of ![equation](https://latex.codecogs.com/svg.image?%5Cmathbb%7BE%7D%5BY=1%7CX%5D=f(b_0%20&plus;%20b_1%20X_a%20&plus;%20b_2%20X_s))
 
 
-#### The agent takes a step in the environment and:
-
-Sees all patients and take an action !image](https://latex.codecogs.com/svg.image?a=%5C%7B%5Ctheta_0,%20%5Ctheta_1,%20%5Ctheta_2%5C%7D) <br />
-Fits a logistic regression on the patients using the action taken: ![image](https://latex.codecogs.com/svg.image?%5Cmathbb%7BE%7D%5BY=1%7CX%5D=%5Cfrac%7B1%7D%7B1&plus;%20%5Cexp%5E%7B-(X_s&plus;X_a)%7D) <br />
-Computes the logit risk of each observation ![equation](https://latex.codecogs.com/svg.image?%5Crho_1) <br />
+#### The environment produces the following iteration:
+<br />
+**e=0, t=0**<br />
+Sees a population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N)<br />
+<br />
+**e=0, t=1**<br />
+See the same population ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(1),&space;X_s(1))_{i=1}^N)<br />
+take an action ![image](https://latex.codecogs.com/svg.image?a=%5C%7B%5Ctheta_0,%20%5Ctheta_1,%20%5Ctheta_2%5C%7D) <br />
+Computes the logit risk of each observation ![equation](https://latex.codecogs.com/svg.image?\rho_1(X_a(1),&space;X_s(1))) <br />
+<br />
+**e=1, t=0**<br />
+See a new population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N)<br />
 Computes the intervention value ![equation](https://latex.codecogs.com/svg.image?%5Cbar%7BX%7D_a%20=%20g(%5Crho_1,%20X_a)) <br />
-Fits a new model [Replaces the initial X_a with the g value, for each observation](https://latex.codecogs.com/svg.image?%5Cmathbb%7BE%7D%5BY=1%7C%5Cbar%7BX%7D_a,%20X_s%5D=logistic(%5Cbar%7BX%7D_a,%20X_s)) <br />
- <br />
+
+**e=1, t=1**<br />
+See outcome Y <br />
+Fits a logistic regression on the patients: ![equation](https://latex.codecogs.com/svg.image?\mathbb{E}[Y=1|\bar{X}_a,&space;X_s]=\frac{1}{1&plus;&space;\exp^{-(\theta_0&plus;\theta_1&space;\bar{X_a}&plus;\theta_2&space;X_s)}) <br />
 Retrieves the coefficients ![equation](https://latex.codecogs.com/svg.image?\{\theta_0^{(2)},&space;\theta_1^{(2)},&space;\theta_2^{(2)}\}) <br />
 Computes the logit risk of each observation ![equation](https://latex.codecogs.com/svg.image?%5Crho_2)  <br />
 Computes the mean logit risk across all observations, which is the reward given by the environment back to the agent (as a result of the 'good deed' of the action) <br />
- <br />
-The reward represents the mean hospitalization rate of the 'intervened' population of patients <br />
-Then the episode ends and the environment resets to a new population. <br />
+
+Then the episode ends and the environment restarts from episode 1 <br />
 
 # To install
 - git clone https://github.com/claudia-viaro/gym-update.git
