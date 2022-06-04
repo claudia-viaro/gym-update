@@ -2,15 +2,16 @@
 
 
 #### The domain features a continuos state and action space:
-Action space: self.action_space = spaces.Box(
+Action space: ```python
+self.action_space = spaces.Box(
                                       low = np.float32(-np.array([2, 2, 2])),
-                                      high = np.float32(np.array([2, 2, 2])))
+                                      high = np.float32(np.array([2, 2, 2])))```
 *the actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients            
 
-Observation space: self.observation_space = spaces.Box(
+Observation space: `self.observation_space = spaces.Box(
                                                 low=np.array([0], 
                                                 high=np.array([1], 
-                                                dtype=np.float32)            
+                                                dtype=np.float32)  `          
 *the states represent values for the covariates X_a, X_s
 
 #### The environment resets:
@@ -38,7 +39,8 @@ Then the episode ends and the environment resets
 # To install
 - git clone https://github.com/claudia-viaro/gym-update.git
 - cd gym-update
-- !pip install gym-update
+- ```bash
+!pip install gym-update```
 - import gym
 - import gym_update
 - env =gym.make('update-v0')
