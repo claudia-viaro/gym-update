@@ -17,9 +17,9 @@ Observation space: `self.observation_space = spaces.Box(
 #### The environment resets:
 
 New population of patients at every episode <br />
-This is represented by a cross-sectional dataset with variables ![image](https://latex.codecogs.com/svg.image?Y,%20X_a,%20X_s) and ![image](https://latex.codecogs.com/svg.image?N) observations (# patients): ![image](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
-![image](https://latex.codecogs.com/svg.image?20X_a,%20X_s) follows a truncated normal distribution ![image](https://latex.codecogs.com/svg.image?(a=0,%20b=%5Cinfty)) <br />
-![image](https://latex.codecogs.com/svg.image?Y) follows a Binomial distribution ![image](https://latex.codecogs.com/svg.image?Bin(p,%20n)), ![image](https://latex.codecogs.com/svg.image?p=0.5) <br />
+This is represented by a cross-sectional dataset with variables ![equation](https://latex.codecogs.com/svg.image?Y,%20X_a,%20X_s) and ![image](https://latex.codecogs.com/svg.image?N) observations (# patients): ![image](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
+![equation](https://latex.codecogs.com/svg.image?20X_a,%20X_s) follows a truncated normal distribution ![image](https://latex.codecogs.com/svg.image?(a=0,%20b=%5Cinfty)) <br />
+![equation](https://latex.codecogs.com/svg.image?Y) follows a Binomial distribution ![equation](https://latex.codecogs.com/svg.image?Bin(p,%20n)), ![equation](https://latex.codecogs.com/svg.image?p=0.5) <br />
 
 We are interested in observing the behaviour of ![equation](https://latex.codecogs.com/svg.image?%5Cmathbb%7BE%7D%5BY=1%7CX%5D=f(b_0%20&plus;%20b_1%20X_a%20&plus;%20b_2%20X_s))
 
