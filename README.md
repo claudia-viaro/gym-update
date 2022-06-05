@@ -15,8 +15,7 @@ Observation space: `self.observation_space = spaces.Box(
 *the states represent values for the covariates X_a, X_s
 
 
-New population of patients at every episode <br />
-This is represented by a cross-sectional dataset with variables ![equation](https://latex.codecogs.com/svg.image?Y,%20X_a,%20X_s) and ![equation](https://latex.codecogs.com/svg.image?N) observations (# patients): ![equation](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
+At every episode there is a new population of patients, it is represented by a cross-sectional dataset ![equation](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
 ![equation](https://latex.codecogs.com/svg.image?20X_a,%20X_s) follows a truncated normal distribution ![equation](https://latex.codecogs.com/svg.image?(a=0,%20b=%5Cinfty)) <br />
 ![equation](https://latex.codecogs.com/svg.image?Y) follows a Binomial distribution ![equation](https://latex.codecogs.com/svg.image?Bin(p,%20n)), ![equation](https://latex.codecogs.com/svg.image?p=0.5) <br />
 
@@ -26,15 +25,15 @@ We are interested in observing the behaviour of ![equation](https://latex.codeco
 #### The environment produces the following iteration:
 <br />
 **e=0, t=0**<br />
-Sees a population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N)<br />
+Sees a population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N) <br />
 <br />
 **e=0, t=1**<br />
-See the same population ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(1),&space;X_s(1))_{i=1}^N)<br />
+See the same population ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(1),&space;X_s(1))_{i=1}^N) <br />
 take an action ![equation](https://latex.codecogs.com/svg.image?a=%5C%7B%5Ctheta_0,%20%5Ctheta_1,%20%5Ctheta_2%5C%7D) <br />
 Computes the logit risk of each observation ![equation](https://latex.codecogs.com/svg.image?\rho_1(X_a(1),&space;X_s(1))) <br />
 <br />
 **e=1, t=0**<br />
-See a new population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N)<br />
+See a new population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N) <br />
 Computes the intervention value ![equation](https://latex.codecogs.com/svg.image?%5Cbar%7BX%7D_a%20=%20g(%5Crho_1,%20X_a)) <br />
 
 **e=1, t=1**<br />
