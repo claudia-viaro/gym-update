@@ -110,7 +110,7 @@ class UpdateEnv(gym.Env):
     #without action - simple logit on inital (non-intervened) dataset with Y, old Xa, Xs
     patients5 = np.hstack([Y, self.patients]) #shape (50, 3), 1st column of Y, 2nd columns Xs, 3rd column Xa
     model5 = LogisticRegression(fit_intercept=False).fit(patients5[:, 1:3], np.ravel(patients5[:, 0].astype(int)))
-    thetas5 = np.array([model5.coef_[0,0] , model5.coef_[0,1]]) #thetas5[0]: coef for Xs, thetas4[1] coef for Xa
+    thetas5 = np.array([model5.intercept_[0], model5.coef_[0,0] , model5.coef_[0,1]]) #thetas5[0]: coef for Xs, thetas4[1] coef for Xa
     rho5 = (1/(1+np.exp(-(np.matmul(patients1, thetas5[:, None])))))  #prob of Y=1  #(sizex3) x (3x1) = (size, 1) #use patients1 because it's fine, it has self.patients
     rho5 = rho5.squeeze() # shape: size, individual risk
     rho5_list = rho5.tolist()
