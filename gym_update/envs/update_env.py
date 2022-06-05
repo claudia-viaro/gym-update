@@ -93,7 +93,7 @@ class UpdateEnv(gym.Env):
   
       list1[:, i+1]=rho4
       rho_mean.append(rho4_mean)  # mean reward in a cycle
-      theta_list.append(thetas4) # list of all thetas assigned in a cycle
+      theta_list.append(thetas3) # list of all thetas assigned in a cycle
       #HERE. should repeat only dynamics of episode 1    
       
     #check if horizon is over, otherwise keep on going
