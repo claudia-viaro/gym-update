@@ -5,14 +5,14 @@
 Action space: ```
 self.action_space = spaces.Box(
                                       low = np.float32(-np.array([2, 2, 2])),
-                                      high = np.float32(np.array([2, 2, 2])))```
-*the actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients            
+                                      high = np.float32(np.array([2, 2, 2])))```  <br />
+*the actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients         <br />    
 
 Observation space: `self.observation_space = spaces.Box(
                                                 low=np.array([0], 
                                                 high=np.array([1], 
-                                                dtype=np.float32)  `          
-*the states represent values for the covariates X_a, X_s
+                                                dtype=np.float32)  `  <br />         
+*the states represent values for the covariates X_a, X_s  <br />
 
 
 At every episode there is a new population of patients, it is represented by a cross-sectional dataset ![equation](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
