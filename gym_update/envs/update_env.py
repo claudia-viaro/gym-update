@@ -44,6 +44,35 @@ class UpdateEnv(gym.Env):
 
 #take an action with the environment
   def step(self, action):
+    
+    # e=0, t=0
+    # observe patients (from reset function, self.patients) (Xa(0), Xs(0))
+    
+    #e=0, t=1    
+    # observe same patients (Xa(1), Xs(1))=(Xa(0), Xs(0))
+    # observe Y(1)
+    Y = np.random.binomial(1, 0.2, (self.size, 1))
+    pat_0 = np.hstack([Y, self.patients])
+    
+    # predict f_0 = E[Y_0|X_0] using a logistic
+    model_0 = LogisticRegression().fit(pat[:, 1:3], np.ravel(pat[:, 0].astype(int)))
+    thetas_0 = np.array([model_0.intercept_[0], model_0.coef_[0,0] , model_0.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
+    pat_00 = np.hstack([np.ones((self.size, 1)), self.patients]) #1, Xs, Xa
+    f_0 = (1/(1+np.exp(-(np.matmul(pat_00, thetas_0[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+    f_0=f_0.squeeze() 
+    f_0_mean =  np.mean(f_0) # take mean across individuals
+    
+    # decide on initial actions
+    initial_actions = thetas_0
+    
+    # e=1, t=0
+    # observe patients (from reset function, self.patients) (Xa(0), Xs(0))
+    pat_1= np.hstack([np.ones((self.size, 1)),truncnorm.rvs(a=0, b= math.inf,size=(self.size,2))]) #shape (size, 2), 1st columns is Xs, second is Xa
+    
+    # compute rho_0(Xs_1(0), Xa_1(0))
+    rho_0 = (1/(1+np.exp(-(np.matmul(pat_1, thetas_0[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+
+    
     #MODEL FITTING CYCLE      
     
     #e=0, t=0
