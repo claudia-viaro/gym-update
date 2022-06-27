@@ -4,6 +4,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 import gym
 from gym import error, spaces, utils
+from gym.utils import seeding
 import pandas.testing as tm
 import math
 from sklearn.linear_model import LogisticRegression
