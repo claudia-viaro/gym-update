@@ -1,5 +1,7 @@
 # Gym-style API environment
 
+<img  src="https://github.com/claudia-viaro/gym-update/blob/main/dynamics.png">
+
 
 #### The domain features a continuos state and action space:
 Action space: ```
