@@ -1,6 +1,6 @@
 # Gym-style API environment
 
-<img width="2000" height="400" src="https://github.com/claudia-viaro/gym-update/blob/main/dynamics.png">
+<img width="500" height="300" src="https://github.com/claudia-viaro/gym-update/blob/main/dynamics.png">
 
 
 #### The domain features a continuos state and action space:
