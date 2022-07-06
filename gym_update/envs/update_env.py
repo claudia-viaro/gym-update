@@ -55,11 +55,12 @@ class UpdateEnv(gym.Env):
     # bit modified 
     #-----------------------------------------------------------------------------------
     # e=0, t=0
-    # observe patients (from reset function, self.patients) (Xs(0), Xa(0))
+    # observe self.patients (from reset function, self.patients) (Xs(0), Xa(0))
     
     #-----------------------------------------------------------------------------------
     #e=0, t=1    
     # observe same patients (Xs(1), Xa(1))=(Xs(0), Xa(0))
+    
     # observe Y(1)
     Y_0(1) = np.random.binomial(1, 0.2, (self.size, 1))
     pat_0(1) = np.hstack([Y_0(1), self.patients]) # Y, Xs, Xa
@@ -85,7 +86,7 @@ class UpdateEnv(gym.Env):
     
     # decide an intervention, use rho_0, Xa_1(0) 
     Xa = pat_1(0)[:, 2] # shape: size
-    g_1 = intervention(Xa, rho_0)
+    g_1 = self.intervention(Xa, rho_0)
     
     #-----------------------------------------------------------------------------------
     # e=1, t=1
@@ -120,7 +121,9 @@ class UpdateEnv(gym.Env):
     # - f_1_mean, that is f_1 = E[Y_1|X_1(1)]                      
     # - thetas_naive 
     # - rho_naive, that is E[Y_1|X_1(1)]   #?                       
-                            
+    
+    # end of bit modified
+                          
                             
     #MODEL FITTING CYCLE      
     
@@ -198,8 +201,9 @@ class UpdateEnv(gym.Env):
     #set placeholder for infos
     info ={}    
     return self.state, reward, theta_list[0], theta_list[-1], reward5, done, {}
-    # return state, reward (mean of population reward across all iterations),
-    # first action assigned, last action assigned, naive reward
+    # return: 1) state
+    # 2) reward (mean of population reward across all iterations),
+    # 3) first action assigned 4) last action assigned 5) naive reward
     
 #reset state and horizon    
   def reset(self):
@@ -209,9 +213,6 @@ class UpdateEnv(gym.Env):
     self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
     
        
-    self.random_indices = np.random.choice(self.size, size=1, replace=False)
-    self.state = self.patients[self.random_indices, :].reshape(2,) 
-
     
     
-    return self.state
+    return self.patients
