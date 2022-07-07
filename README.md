@@ -1,20 +1,26 @@
 # Gym-style API environment
 
+## Environment dynamics
+
 <img width="500" height="300" src="https://github.com/claudia-viaro/gym-update/blob/main/dynamics.png">
 
+The functions used:
+- f_e(x^s, x^a) = \mathbb{E}[Y_e|X_e(1) = (x^s, x^a)]$: Causal mechanism determining probability of $Y_e = 1$ given $X_e(1)$
+- g^a_e(\rho, x^a) \in \{g : [0, 1] \times \Omega \rightarrow \Omega \}$: Intervention process on $X_a$ in response to a predictive score $\rho$ updating $X^a_e(0) \rightarrow X^a_e(1)
+- $\rho_e(x^s, x^a) \in \{\rho_e : \Omega^s \times \Omega^a \rightarrow [0, 1]\}$: Predictive score trained at epoch $e$
 
-#### The domain features a continuos state and action space:
-Action space: ```
-self.action_space = spaces.Box(
-                                      low = np.float32(-np.array([2, 2, 2])),
-                                      high = np.float32(np.array([2, 2, 2])))```  <br />
-*the actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients         <br />    
 
-Observation space: `self.observation_space = spaces.Box(
-                                                low=np.array([0], 
-                                                high=np.array([1], 
-                                                dtype=np.float32)  `  <br />         
-*the states represent values for the covariates X_a, X_s  <br />
+Additional information:
+- At epoch e, the predictive score $\rho$ uses $X^a_e(0), X^s_e(0)$ and $Y_e$ as training data; previous epochs are ignored and $X^a_e(1), X^s_e(1)$ are not observed. The predictive score is computed at time $t=0$
+- $\forall e \mathbb{E}[Y_e|X_e] = \mathbb{E}[Y_e|X_e(1)]$: $Y_e$ depends on $X_e(1)$; that is, after any potential interventions
+
+
+
+
+## state and action spaces:
+Action space: 3D space $\in [-2, 2]$. *the actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients         <br />    
+
+Observation space: 2D space $\in [0, \infty)$. *the states represent values for the covariates X_a, X_s  <br />
 
 
 At every episode there is a new population of patients, it is represented by a cross-sectional dataset ![equation](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
