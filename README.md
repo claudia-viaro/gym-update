@@ -37,9 +37,11 @@ _The model performance under non-intervention is equivalent to performance at ep
 **EPOCH $>0$**
 **t=0**<br />
 - observe a new population of patients $(X_e^a(0),X_e^s(0))_{i=1}^N$
-- 
+- analyst computes $\rho_0 (X^s_e(0), Xa_e(0))$
 
 **t=1**<br />
+- $X^s_e(0)$ is not interventionable and becomes $X^s_e(1)$
+- $E[Y_1]$ is determined by covariates $X^s_e(1), X^a_e(1)$
 - the score $ρ_e$ is defined as $\rho_e(x^s, x^a) = f(x^s, g^a(\rho_{e−1}(x^s, x^a), xa)) \triangleq h(\rho_{e−1}(x^s, x^a))
 - $Y_0$ is observed 
 
