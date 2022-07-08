@@ -28,9 +28,10 @@ By  ‘naive’ updating it is meant that a new score $ρ_e$ is fitted in each e
 
 **t=1** <br />
 - there are no interventions, hence $X_0^a(1) = X_0^a(0)$
-- the risk of observing $Y = 1$ is $E[Y_0|X_0(0) = (x^s, x^a)] =f(x^s, x^a)$
+- the risk of observing $Y = 1$ depends only on covariates at $t1$ through $f_0$ and is $E[Y_0|X_0(0) = (x^s, x^a)] =f(x^s, x^a)$
 - the score $ρ_0$ is therefore defined as $\rho_0(x^s, x^a) = f(x^s, x^a)$
 - $Y_0$ is observed 
+- analyst decides a function $\rho_0$, which is retained into epoch 1
 
 _The model performance under non-intervention is equivalent to performance at epoch 0_ <br />
 
