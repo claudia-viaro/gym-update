@@ -25,22 +25,19 @@ Action space: 3D space $\in [-2, 2]$. Actions represent the coefficients thetas 
 Observation space: 2D space $\in [0, \infty)$. States represent values for the covariates $X_a, X_s$  <br />
 
 
-At every episode there is a new population of patients, it is represented by a cross-sectional dataset ![equation](https://latex.codecogs.com/svg.image?%5C%7BY,%20X_a,%20X_s%5C%7D_%7Bi=1%7D%5EN)  <br />
-![equation](https://latex.codecogs.com/svg.image?20X_a,%20X_s) follows a truncated normal distribution ![equation](https://latex.codecogs.com/svg.image?(a=0,%20b=%5Cinfty)) <br />
-![equation](https://latex.codecogs.com/svg.image?Y) follows a Binomial distribution ![equation](https://latex.codecogs.com/svg.image?Bin(p,%20n)), ![equation](https://latex.codecogs.com/svg.image?p=0.5) <br />
+## Naive updating
+By  ‘naive’ updating it is meant that a new score $ρ_e$ is fitted in each epoch, and then used as a drop-in replacement of an existing score $ρ_{e−1}.
 
-We are interested in observing the behaviour of ![equation](https://latex.codecogs.com/svg.image?%5Cmathbb%7BE%7D%5BY=1%7CX%5D=f(b_0%20&plus;%20b_1%20X_a%20&plus;%20b_2%20X_s))
+**EPOCH 0** <br />
+**t=0** <br />
+- observe a population of patients $(X_0^a(0),X_0^s(0))_{i=1}^N
 
+**t=1** <br />
+- there are no interventions, hence $X_0^a(1) = X_0^a(0)
+- the risk of observing $Y = 1$ is $E[Y_0|X_0(0) = (x^s, x^a)] =f(x^s, x^a)$
+- the score $ρ_0$ is therefore defined as $\rho_0(x^s, x^a) = f(x^s, x^a)$
 
-#### The environment produces the following iteration:
-<br />
-**e=0, t=0**<br />
-Sees a population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N) <br />
-<br />
-**e=0, t=1**<br />
-See the same population ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(1),&space;X_s(1))_{i=1}^N) <br />
-take an action ![equation](https://latex.codecogs.com/svg.image?a=%5C%7B%5Ctheta_0,%20%5Ctheta_1,%20%5Ctheta_2%5C%7D) <br />
-Computes the logit risk of each observation ![equation](https://latex.codecogs.com/svg.image?\rho_1(X_a(1),&space;X_s(1))) <br />
+_
 <br />
 **e=1, t=0**<br />
 See a new population of patients ![equation](https://latex.codecogs.com/svg.image?(Y,&space;X_a(0),&space;X_s(0))_{i=1}^N) <br />
