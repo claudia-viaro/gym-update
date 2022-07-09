@@ -31,7 +31,7 @@ By  ‘naive’ updating it is meant that a new score $ρ_e$ is fitted in each e
 - the risk of observing $Y = 1$ depends only on covariates at $t1$ through $f_0$ and is $E[Y_0|X_0(0) = (x^s, x^a)] =f(x^s, x^a)$
 - the score $ρ_0$ is therefore defined as $\rho_0(x^s, x^a) = f(x^s, x^a)$
 - $Y_0$ is observed 
-- analyst decides a function $\rho_0$, which is retained into epoch 1
+- analyst decides a function $\rho_0$, which is retained into epoch 1. 
 
 _The model performance under non-intervention is equivalent to performance at epoch 0_ <br />
 
@@ -42,9 +42,10 @@ _The model performance under non-intervention is equivalent to performance at ep
 
 **t=1**<br />
 - $X^s_e(0)$ is not interventionable and becomes $X^s_e(1)$
+- $\rho_0$ is used to inform interventions $g^a_e$ to change values $X^a_e(0) = g_e(\rho_{e-1}(x^s, x^a), x^a)$
 - $E[Y_1]$ is determined by covariates $X^s_e(1), X^a_e(1)$
 - the score $ρ_e$ is defined as $\rho_e(x^s, x^a) = f(x^s, g^a(\rho_{e−1}(x^s, x^a), xa)) \triangleq h(\rho_{e−1}(x^s, x^a))
-- $Y_0$ is observed 
+- $Y_e$ is observed 
 
 
 Then the episode ends and the environment restarts from episode 1 <br />
