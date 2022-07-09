@@ -20,7 +20,17 @@ uncertainty linked to real-world interventions)
 
 
 ## Naive updating
-By  ‘naive’ updating it is meant that a new score $ρ_e$ is fitted in each epoch, and then used as a drop-in replacement of an existing score $ρ_{e−1}$.
+By  ‘naive’ updating it is meant that a new score $ρ_e$ is fitted in each epoch, and then used as a drop-in replacement of an existing score $ρ_{e−1}$. It leads
+to estimates $\rho_e(x^s, x^a)$ converging as e → ∞ to a setting in which ρe accurately estimates its own effect:
+conceptually, ρe(x
+s
+, xa
+) estimates the probability of
+Y after interventions have been made on the basis of
+ρe(x
+s
+, xa
+) itself
 
 **EPOCH 0** <br />
 **t=0** <br />
