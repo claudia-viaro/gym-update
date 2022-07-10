@@ -13,7 +13,7 @@ The functions used:
 Additional information:
 - At epoch $e$, the predictive score $\rho$ uses $X^a_e(0), X^s_e(0)$ and $Y_e$ as training data; previous epochs are ignored and $X^a_e(1), X^s_e(1)$ are not observed. The predictive score is computed at time $t=0$.
 - We allow $\rho_e$ to be an arbitrary function, but generally presume it is an estimator of $\rho_e(x^s, x^a) \approx E [Y_e|X^s_e(0) = x^s, X^a_e(0) = x^a]= f_e(x^s, g^a_e(\rho_{e-1}, x^a)) \triangleq \tilde{f}_e(x^s, x^a) $
-- $\forall e f_e = \mathbb{E}[Y_e|X_e] = \mathbb{E}[Y_e|X_e(1)]$: $Y_e$ depends on $X_e(1)$; that is, after any potential interventions
+- $\forall e f_e = E[Y_e|X_e] = E[Y_e|X_e(1)]$: $Y_e$ depends on $X_e(1)$; that is, after any potential interventions
 - a higher value $\rho$ means a larger intervention is made (we assume $g^a_e$ to be deterministic, but random valued functions may more accurately capture the
 uncertainty linked to real-world interventions)
 
