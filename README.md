@@ -32,7 +32,7 @@ to estimates $\rho_e(x^s, x^a)$ converging as $e \rightarrow \infty$ to a settin
 - the risk of observing $Y = 1$ depends only on covariates at $t1$ through $f_0$ and is $E[Y_0|X_0(0) = (x^s, x^a)] =f(x^s, x^a)$
 - the score $\rho_0$ is therefore defined as $\rho_0(x^s, x^a) = f(x^s, x^a)$
 - $Y_0$ is observed 
-- analyst decides a function $\rho_0$, which is retained into epoch 1. We will use initialized actions $\theta = (\theta^0, \theta^1, \theta^2)$
+- analyst decides a function $\rho_0$, which is retained into epoch 1. We will use initialized actions $&theta = (&theta^0, \theta^1, \theta^2)$
 
 _The model performance under non-intervention is equivalent to performance at epoch 0_ <br />
 
