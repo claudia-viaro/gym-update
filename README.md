@@ -5,7 +5,7 @@
 <img width="500" height="300" src="https://github.com/claudia-viaro/gym-update/blob/main/dynamics.png">
 
 The functions used:
-- $f_e(x^s, x^a) = \mathbb{E}[Y_e|X_e(1) = (x^s, x^a)]$: Causal mechanism determining probability of $Y_e = 1$ given $X_e(1)$
+- $f_e(x^s, x^a) = \mathbb{E}[Y_e|X_e(1) = (x^s, x^a)]$: Causal mechanism determining probability of $Y_e = 1$ given $X_e(1)$. We will take $f_e(x^s, x^a) = (1 + \exp{−x^s−x^a)^{−1}$
 - $g^a_e(\rho, x^a) \in \{g : [0, 1] \times \Omega \rightarrow \Omega \}$: Intervention process on $X^a$ in response to a predictive score $\rho$ updating $X^a_e(0) \rightarrow X^a_e(1)$
 - $\rho_e(x^s, x^a) \in \{\rho_e : \Omega^s \times \Omega^a \rightarrow [0, 1]\}$: Predictive score trained at epoch $e$
 
@@ -32,7 +32,7 @@ to estimates $\rho_e(x^s, x^a)$ converging as $e \rightarrow \infty$ to a settin
 - the risk of observing $Y = 1$ depends only on covariates at $t1$ through $f_0$ and is $E[Y_0|X_0(0) = (x^s, x^a)] =f(x^s, x^a)$
 - the score $\rho_0$ is therefore defined as $\rho_0(x^s, x^a) = f(x^s, x^a)$
 - $Y_0$ is observed 
-- analyst decides a function $\rho_0$, which is retained into epoch 1. 
+- analyst decides a function $\rho_0$, which is retained into epoch 1. We will use initialized actions $\theta = (\theta^0, \theta^1, \theta^2)$
 
 _The model performance under non-intervention is equivalent to performance at epoch 0_ <br />
 
@@ -47,7 +47,7 @@ _The model performance under non-intervention is equivalent to performance at ep
 - $E[Y_1]$ is determined by covariates $X^s_e(1), X^a_e(1)$
 - the score $ρ_e$ is defined as $\rho_e(x^s, x^a) = f(x^s, g^a(\rho_{e−1}(x^s, x^a), xa)) \triangleq h(\rho_{e−1}(x^s, x^a))
 - $Y_e$ is observed 
-- analyst decides a function $\rho_e$ using $X^s_e(1), X^a_e(1), Y_e$, which is retained into epoch $e+1$. 
+- analyst decides a function $\rho_e$ using $X^s_e(1), X^a_e(1), Y_e$, which is retained into epoch $e+1$. We will use $\rho_e =(1 + \exp{−\theta^0 −x^s \theta^1 −x^a \beta^2 )^{−1}$ <br />
 
 Then the episodes repeat <br />
 
