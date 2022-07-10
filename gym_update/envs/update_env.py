@@ -65,31 +65,24 @@ class UpdateEnv(gym.Env):
     
     # compute rho_0(Xs_e(0), Xa_e(0)) - we're using covariates at e and thetas at e-1
     # we should have used init_actions for the first time and then actions from environment
-    rho_0 = (1/(1+np.exp(-(np.matmul(pat_e0, self.init_actions[:, None])))))  #prob of Y=1. # (sizex3) x (3x1) = (size, 1)
+    rho_0 = (1/(1+np.exp(-(np.matmul(pat_e0, self.init_actions[:, None])))))[:, 0]  #prob of Y=1. # (sizex3) x (3x1) = (size, 1)
     
-    # decide an intervention, use rho_0, Xa_1(0) 
-    Xa = pat_e0[:, 2] # shape: size
-    g_1 = self.intervention(Xa, rho_0)
+    # decide an intervention, use rho_0, Xa_1(0)
+    g_1 = self.intervention(pat_e0[:, 2], rho_0)
     
     #-----------------------------------------------------------------------------------
     # e=1, t=1
     #update Xa_1(0) to Xa_1(1) with intervention
     Xa = g1 # size
+    # predict f_1 = E[Y_1|X_1(1)] 
+    f_1 = 1/(1+ np.exp(-pat_e0[:, 1]-Xa))
     
     # observe Y_1(1)
     Y_1 = np.random.binomial(1, 0.2, (self.size, 1))
-    pat_e1 = np.hstack([Y_1, pat_e0[:, 1:3]) #shape (size, 3), (Y, Xs, Xa)
+    pat_e1 = np.hstack([Y_1, np.reshape(pat_e0[:, 1], (size, 1)), np.reshape(Xa, (size, 1))]) #shape (size, 3), (Y, Xs, Xa)                
     
-    # predict f_1 = E[Y_1|X_1(1)] 
-    f_1 = 1/(1+ np.exp(-pat_e1[:, 0]-pat_e1[:, 1]))                    
-    model_1 = LogisticRegression().fit(pat_e1[:, 1:3], np.ravel(pat_e1[:, 0].astype(int)))
-    thetas_1 = np.array([model_1.intercept_[0], model_1.coef_[0,0] , model_1.coef_[0,1]]) #thetas1[0]: intercept; thetas1[1]: coef for Xs, thetas1[2] coef for Xa
-    
-    # use actions (thetas) from environment
-    theta0, theta1, theta2 = action  # actions(thetas) from env                      
-    f_1 = (1/(1+np.exp(-(np.matmul(pat_00, action[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
-    f_1=f_1.squeeze() 
-    f_1_mean =  np.mean(f_1) # take mean across individuals    
+    # use actions (thetas) from environment                  
+    rho_1 = (1/(1+np.exp(-(np.matmul(pat_00, action[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1 
                           
     #-----------------------------------------------------------------------------------
     # naive result. use pat_1(0), Y_1(1)
