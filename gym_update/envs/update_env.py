@@ -35,9 +35,6 @@ class UpdateEnv(gym.Env):
         
     #set an initial state
     self.state=None 
-
-    #introduce some length
-    self.horizon=200
     
     self.init_actions = [0.1, 0.1, 0.1]
 
@@ -54,9 +51,7 @@ class UpdateEnv(gym.Env):
 #take an action with the environment
   def step(self, action):
     
-    # bit modified 
-    #-----------------------------------------------------------------------------------
-    
+    done = False
     
     #-----------------------------------------------------------------------------------
     # e=e, t=0
@@ -64,7 +59,6 @@ class UpdateEnv(gym.Env):
     pat_e0= np.hstack([np.ones((self.size, 1)),truncnorm.rvs(a=0, b= math.inf,size=(self.size,2))]) #shape (size, 3), (1, Xs, Xa)
     
     # compute rho_0(Xs_e(0), Xa_e(0)) - we're using covariates at e and thetas at e-1
-    # we should have used init_actions for the first time and then actions from environment
     rho_0 = (1/(1+np.exp(-(np.matmul(pat_e0, self.init_actions[:, None])))))[:, 0]  #prob of Y=1. # (sizex3) x (3x1) = (size, 1)
     
     # decide an intervention, use rho_0, Xa_1(0)
@@ -83,108 +77,42 @@ class UpdateEnv(gym.Env):
     
     # use actions (thetas) from environment                  
     rho_1 = (1/(1+np.exp(-(np.matmul(pat_00, action[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1 
+    
+    # link drop in replacement of rho
+    
                           
     #-----------------------------------------------------------------------------------
-    # naive result. use pat_1(0), Y_1(1)
-    pat_naive =  pat_1(1)
+    # naive result, uses variables without intervention. use pat_e0, Y_e
+    pat_naive =  np.hstack([Y_1, np.reshape(pat_e0, (size, 2))])  
     model_naive = LogisticRegression().fit(pat_naive[:, 1:3], np.ravel(pat_naive[:, 0].astype(int)))                        
     thetas_naive = np.array([model_naive.intercept_[0], model_naive.coef_[0,0] , model_naive.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
-    pat_naive00 = pat_1(0)
+    pat_naive00 = np.hstack([np.ones((self.size, 1)), np.reshape(pat_e0, (size, 2))])
     rho_naive = (1/(1+np.exp(-(np.matmul(pat_naive00, thetas_naive[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
                             
     #-----------------------------------------------------------------------------------                        
     # we return:
-    # - actions
-    # - f_1_mean, that is f_1 = E[Y_1|X_1(1)]                      
-    # - thetas_naive 
-    # - rho_naive, that is E[Y_1|X_1(0)]                        
-    
-    # end of bit modified
-                          
+    # - f_1 = E[Y_1|X_1(1)]                      
+    # - rho_naive, that is E[Y_1|X_1(0)]                                               
                             
-    #MODEL FITTING CYCLE      
     
-    #e=0, t=0
-    #see patients (from reset function) (Xa(0), Xs(0)), no intervention
-    list1 = np.zeros((self.size,self.horizon+1))
-    rho_mean=[]
-    rho_meanl=[]
-    theta_list=[]
-    theta_list_l=[]
-
-    #e=0, t=1    
-    #see same patients (Xa(1), Xs(1))=(Xa(0), Xs(0)) because no intervention occurred but this only at e=0
-    #see Y (not necessary I guess)   
-    theta0, theta1, theta2 = action  
-
-
-    #compute rho
-    patients1= np.hstack([np.ones((self.size, 1)), self.patients]) #shape (50, 3), 1st column of 1's, 2nd columns Xs, 3rd column Xa
-    rho1 = (1/(1+np.exp(-(np.matmul(patients1, action[:, None])))))  #prob of Y=1  # (sizex3) x (3x1) = (size, 1)
-    rho1 = rho1.squeeze() # shape: size, individual risk
-    rho1_mean =  np.mean(rho1)
-
-    list1[:,0]=rho1
-    rho_mean.append(rho1_mean)
-    theta_list.append(action)
-    
-    for i in range(self.horizon):
-      #e=1, t=0
-      #see new patients (Xa(0), Xs(0))
-      patients2 = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
-      Xa = patients2[:, 1] # shape: size
-      #apply intervention and use rho from previous episode. g(rho_{e-1}, Xa(0))
-      g2 = ((Xa) + 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(1-list1[:,i]**2) + ((Xa) - 0.5*((Xa)+np.sqrt(1+(Xa)**2)))*(list1[:,i]**2)
-    
-      #e=1, t=1
-      #update Xa(0) to Xa(1) with intervention. Xa(1)=g(rho_{e-1}, Xa(0))
-      Xa = g2 # size
-      Y = np.random.binomial(1, 0.2, (self.size, 1))
-      patients3 = np.hstack([Y, np.reshape(patients2[:, 0], (self.size,1)), np.reshape(Xa, (self.size,1))]) #Y, Xs, Xa
-      model3 = LogisticRegression().fit(patients3[:, 1:3], np.ravel(patients3[:, 0].astype(int)))
-      #compute rho by fitting model
-      thetas3 = np.array([model3.intercept_[0], model3.coef_[0,0] , model3.coef_[0,1]]) #thetas2[0]: intercept; thetas2[1]: coef for Xs, thetas2[2] coef for Xa
-      patients4 = np.hstack([np.ones((self.size, 1)), patients3[:, 1:3]]) #1, Xs, Xa
-      rho4 = (1/(1+np.exp(-(np.matmul(patients4, thetas3[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
-      rho4=rho4.squeeze() 
-      rho4_mean =  np.mean(rho4)
-  
-      list1[:, i+1]=rho4
-      rho_mean.append(rho4_mean)  # mean reward in a cycle
-      theta_list.append(thetas3) # list of all thetas assigned in a cycle
-      #HERE. should repeat only dynamics of episode 1    
       
     #check if horizon is over, otherwise keep on going
     if rho_mean[-1] >= 0.2:
       done = True
     else:
       done = False
-    #set the reward equal to the mean hospitalization rate
-    reward = np.mean(rho_mean)
         
-    self.state = self.patients[self.random_indices, :].reshape(2,) #not sure if with or without reshape
+    self.state = 
     
     
-    #without action - simple logit on inital (non-intervened) dataset with Y, old Xa, Xs
-    patients5 = np.hstack([Y, self.patients]) #shape (50, 3), 1st column of Y, 2nd columns Xs, 3rd column Xa
-    model5 = LogisticRegression(fit_intercept=False).fit(patients5[:, 1:3], np.ravel(patients5[:, 0].astype(int)))
-    thetas5 = np.array([model5.intercept_[0], model5.coef_[0,0] , model5.coef_[0,1]]) #thetas5[0]: coef for Xs, thetas4[1] coef for Xa
-    rho5 = (1/(1+np.exp(-(np.matmul(patients1, thetas5[:, None])))))  #prob of Y=1  #(sizex3) x (3x1) = (size, 1) #use patients1 because it's fine, it has self.patients
-    rho5 = rho5.squeeze() # shape: size, individual risk
-    rho5_list = rho5.tolist()
-    reward5 = np.mean(rho5)
-    
-    
-    #set placeholder for infos
-    info ={}    
+  
     return self.state, reward, theta_list[0], theta_list[-1], reward5, done, {}
     # return: 1) state
     # 2) reward (mean of population reward across all iterations),
     # 3) first action assigned 4) last action assigned 5) naive reward
     
 #reset state and horizon    
-  def reset(self):
-    self.horizon = 200   
+  def reset(self):  
                           
     # e=0, t=0
     # observe self.patients (from reset function, self.patients) (Xs(0), Xa(0))
