@@ -62,21 +62,21 @@ class UpdateEnv(gym.Env):
     rho_0 = (1/(1+np.exp(-(np.matmul(pat_e0, self.init_actions[:, None])))))[:, 0]  #prob of Y=1. # (sizex3) x (3x1) = (size, 1)
     
     # decide an intervention, use rho_0, Xa_1(0)
-    g_1 = self.intervention(pat_e0[:, 2], rho_0)
+    g_e = self.intervention(pat_e0[:, 2], rho_0)
     
     #-----------------------------------------------------------------------------------
     # e=1, t=1
     #update Xa_1(0) to Xa_1(1) with intervention
-    Xa = g1 # size
+    Xa = ge # size
     # predict f_1 = E[Y_1|X_1(1)] 
-    f_1 = 1/(1+ np.exp(-pat_e0[:, 1]-Xa))
+    f_e = 1/(1+ np.exp(-pat_e0[:, 1]-Xa))
     
     # observe Y_1(1)
     Y_1 = np.random.binomial(1, 0.2, (self.size, 1))
     pat_e1 = np.hstack([Y_1, np.reshape(pat_e0[:, 1], (size, 1)), np.reshape(Xa, (size, 1))]) #shape (size, 3), (Y, Xs, Xa)                
     
     # use actions (thetas) from environment                  
-    rho_1 = (1/(1+np.exp(-(np.matmul(pat_00, action[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1 
+    rho_e = (1/(1+np.exp(-(np.matmul(pat_00, action[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1 
     
     # link drop in replacement of rho
     
@@ -93,23 +93,23 @@ class UpdateEnv(gym.Env):
     # we return:
     # - f_1 = E[Y_1|X_1(1)]                      
     # - rho_naive, that is E[Y_1|X_1(0)]                                               
-                            
+    
+    self.patients = pat_e1[:, 1:3]
+    
     
       
     #check if horizon is over, otherwise keep on going
-    if rho_mean[-1] >= 0.2:
+    if np.mean(rho_e) >= 0.3:
       done = True
     else:
       done = False
         
-    self.state = 
+    
     
     
   
-    return self.state, reward, theta_list[0], theta_list[-1], reward5, done, {}
-    # return: 1) state
-    # 2) reward (mean of population reward across all iterations),
-    # 3) first action assigned 4) last action assigned 5) naive reward
+    return {"patients": self.patients, "f_e": f_e, "naive_patients": pat_naive[:, 1:3], "naive_rho": rho_naive,"done": done}
+    
     
 #reset state and horizon    
   def reset(self):  
@@ -141,4 +141,4 @@ class UpdateEnv(gym.Env):
     
     # i don't really think there's need for initial actions any longer
     # f_0 and rho_0 are the same at e=0                                                        
-    return {"f_0": f_0, "patiens": self.patients}
+    return {"f_0": f_0, "patients": self.patients}
