@@ -6,7 +6,7 @@
 
 The functions used:
 - $f_e(x^s, x^a) = \mathbb{E}[Y_e|X_e(1) = (x^s, x^a)]$: Causal mechanism determining probability of $Y_e = 1$ given $X_e(1)$. We will take $f_e(x^s, x^a) = (1 + \exp^{−x^s−x^a})^{−1}$
-- $g^a_e(\rho, x^a) \in \{g : [0, 1] \times \Omega \rightarrow \Omega \}$: Intervention process on $X^a$ in response to a predictive score $\rho$ updating ![equation](https://latex.codecogs.com/svg.image?X%5Ea_e(0)%20%5Crightarrow%20X%5Ea_e(1))
+- $g^a_e(\rho, x^a) \in \{g : [0, 1] \times \Omega \rightarrow \Omega \}$: Intervention process on $ X^a $ in response to a predictive score $\rho$ updating $X^a_e(0) \rightarrow X^a_e(1)$
 - $\rho_e(x^s, x^a) \in \{\rho_e : \Omega^s \times \Omega^a \rightarrow [0, 1]\}$: Predictive score trained at epoch $e$
 
 
