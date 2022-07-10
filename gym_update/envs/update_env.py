@@ -38,11 +38,13 @@ class UpdateEnv(gym.Env):
 
     #introduce some length
     self.horizon=200
+    
+    self.init_actions = [0.1, 0.1, 0.1]
 
   def seed(self, seed=None):
     self.np_random, seed = seeding.np_random(seed)
     return [seed]    
-
+ 
   def intervention(self, Xa, rho):
     # Xa is Xa_e(0))
     # rho is rho_e-1(Xs_e(0), Xa_e(0))
@@ -54,54 +56,36 @@ class UpdateEnv(gym.Env):
     
     # bit modified 
     #-----------------------------------------------------------------------------------
-    # e=0, t=0
-    # observe self.patients (from reset function, self.patients) (Xs(0), Xa(0))
+    
     
     #-----------------------------------------------------------------------------------
-    #e=0, t=1    
-    # observe same patients (Xs(1), Xa(1))=(Xs(0), Xa(0))
+    # e=e, t=0
+    # observe new patients (Xs_e(0), Xa_e(0))
+    pat_e0= np.hstack([np.ones((self.size, 1)),truncnorm.rvs(a=0, b= math.inf,size=(self.size,2))]) #shape (size, 3), (1, Xs, Xa)
     
-    # observe Y(1)
-    Y_0(1) = np.random.binomial(1, 0.2, (self.size, 1))
-    pat_0(1) = np.hstack([Y_0(1), self.patients]) # Y, Xs, Xa
-    
-    # predict f_0 = E[Y_0|X_0] using a logistic
-    model_0 = LogisticRegression().fit(pat_0(1)[:, 1:3], np.ravel(pat_0(1)[:, 0].astype(int)))
-    thetas_0 = np.array([model_0.intercept_[0], model_0.coef_[0,0] , model_0.coef_[0,1]]) #thetas0[0]: intercept; thetas0[1]: coef for Xs, thetas0[2] coef for Xa
-    pat_00 = np.hstack([np.ones((self.size, 1)), self.patients]) #1, Xs, Xa
-    f_0 = (1/(1+np.exp(-(np.matmul(pat_00, thetas_0[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
-    f_0=f_0.squeeze() 
-    f_0_mean =  np.mean(f_0) # take mean across individuals
-    
-    # decide on initial actions
-    initial_actions = thetas_0
-    
-    #-----------------------------------------------------------------------------------
-    # e=1, t=0
-    # observe patients (from reset function, self.patients) (Xs_1(0), Xa_1(0))
-    pat_1(0)= np.hstack([np.ones((self.size, 1)),truncnorm.rvs(a=0, b= math.inf,size=(self.size,2))]) #shape (size, 3), (1, Xs, Xa)
-    
-    # compute rho_0(Xs_1(0), Xa_1(0)) - we're using covariates at e1 and thetas at e0
-    rho_0 = (1/(1+np.exp(-(np.matmul(pat_1(0), initial_actions[:, None])))))  #prob of Y=1. # (sizex3) x (3x1) = (size, 1)
+    # compute rho_0(Xs_e(0), Xa_e(0)) - we're using covariates at e and thetas at e-1
+    # we should have used init_actions for the first time and then actions from environment
+    rho_0 = (1/(1+np.exp(-(np.matmul(pat_e0, self.init_actions[:, None])))))  #prob of Y=1. # (sizex3) x (3x1) = (size, 1)
     
     # decide an intervention, use rho_0, Xa_1(0) 
-    Xa = pat_1(0)[:, 2] # shape: size
+    Xa = pat_e0[:, 2] # shape: size
     g_1 = self.intervention(Xa, rho_0)
     
     #-----------------------------------------------------------------------------------
     # e=1, t=1
     #update Xa_1(0) to Xa_1(1) with intervention
-    Xa = g2 # size
+    Xa = g1 # size
     
     # observe Y_1(1)
-    Y_1(1) = np.random.binomial(1, 0.2, (self.size, 1))
-    pat_1(1) = np.hstack([Y_1(1), pat_1(0)[:, 1:3]) #shape (size, 3), (Y, Xs, Xa)
+    Y_1 = np.random.binomial(1, 0.2, (self.size, 1))
+    pat_e1 = np.hstack([Y_1, pat_e0[:, 1:3]) #shape (size, 3), (Y, Xs, Xa)
     
-    # predict f_1 = E[Y_1|X_1(1)] using a logistic
-    model_1 = LogisticRegression().fit(pat_1(1)[:, 1:3], np.ravel(pat_1(1)[:, 0].astype(int)))
+    # predict f_1 = E[Y_1|X_1(1)] 
+    f_1 = 1/(1+ np.exp(-pat_e1[:, 0]-pat_e1[:, 1]))                    
+    model_1 = LogisticRegression().fit(pat_e1[:, 1:3], np.ravel(pat_e1[:, 0].astype(int)))
     thetas_1 = np.array([model_1.intercept_[0], model_1.coef_[0,0] , model_1.coef_[0,1]]) #thetas1[0]: intercept; thetas1[1]: coef for Xs, thetas1[2] coef for Xa
     
-    # use actions (thetas) from environment (then it is useless the logistic in model_1 (?))  
+    # use actions (thetas) from environment
     theta0, theta1, theta2 = action  # actions(thetas) from env                      
     f_1 = (1/(1+np.exp(-(np.matmul(pat_00, action[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
     f_1=f_1.squeeze() 
@@ -120,7 +104,7 @@ class UpdateEnv(gym.Env):
     # - actions
     # - f_1_mean, that is f_1 = E[Y_1|X_1(1)]                      
     # - thetas_naive 
-    # - rho_naive, that is E[Y_1|X_1(1)]   #?                       
+    # - rho_naive, that is E[Y_1|X_1(0)]                        
     
     # end of bit modified
                           
@@ -207,12 +191,33 @@ class UpdateEnv(gym.Env):
     
 #reset state and horizon    
   def reset(self):
-    self.horizon = 200
+    self.horizon = 200   
+                          
+    # e=0, t=0
+    # observe self.patients (from reset function, self.patients) (Xs(0), Xa(0))
+    self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa                        
     
-    #define dataset of patients with non-actionable covariate Xs and actionable covariate Xa
-    self.patients = truncnorm.rvs(a=0, b= math.inf,size=(self.size,2)) #shape (size, 2), 1st columns is Xs, second is Xa
+    #-----------------------------------------------------------------------------------
+    #e=0, t=1    
+    # observe same patients (Xs(1), Xa(1))=(Xs(0), Xa(0))
+    # predict f_0 = E[Y_0|X_0]                      
+    f_0 = 1/(1+ np.exp(-self.patients[:, 0]-self.patients[:, 1]))                      
+
+    # observe Y(1)    
+    Y_0 = np.random.binomial(1, 0.2, (self.size, 1))
+    pat_01 = np.hstack([Y_0, self.patients]) # Y, Xs, Xa
     
+    # decide on rho_0
+    # model_0 = LogisticRegression().fit(pat_01[:, 1:3], np.ravel(pat_01[:, 0].astype(int)))
+    # thetas_0 = np.array([model_0.intercept_[0], model_0.coef_[0,0] , model_0.coef_[0,1]]) #thetas0[0]: intercept; thetas0[1]: coef for Xs, thetas0[2] coef for Xa
+    # pat_00 = np.hstack([np.ones((self.size, 1)), self.patients]) #1, Xs, Xa
+    # rho_0 = (1/(1+np.exp(-(np.matmul(pat_00, thetas_0[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)
+    
+    
+    # decide on initial actions, or simply use some values
+    # initial_actions = thetas_0
        
     
-    
-    return self.patients
+    # i don't really think there's need for initial actions any longer
+    # f_0 and rho_0 are the same at e=0                                                        
+    return {"f_0": f_0, "patiens": self.patients}
