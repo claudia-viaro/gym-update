@@ -6,13 +6,13 @@
 
 The functions used:
 - $f_e(x^s, x^a) = \mathbb{E}[Y_e|X_e(1) = (x^s, x^a)]$: Causal mechanism determining probability of $Y_e = 1$ given $X_e(1)$. We will take $f_e(x^s, x^a) = (1 + \exp^{−x^s−x^a})^{−1}$
-- $g^a_e(\rho, x^a) \in \{g : [0, 1] \times \Omega \rightarrow \Omega \}$: Intervention process on $ X^a $ in response to a predictive score $\rho$ updating $X^a_e(0) \rightarrow X^a_e(1)$
+- $g^a_e(\rho, x^a) \in \{g : [0, 1] \times \Omega \rightarrow \Omega \}$: Intervention process on $X^a$ in response to a predictive score $\rho$ updating $X^a_e(0) \rightarrow X^a_e(1)$
 - $\rho_e(x^s, x^a) \in \{\rho_e : \Omega^s \times \Omega^a \rightarrow [0, 1]\}$: Predictive score trained at epoch $e$
 
 
 Additional information:
 - At epoch $e$, the predictive score $\rho$ uses $X^a_e(0), X^s_e(0)$ and $Y_e$ as training data; previous epochs are ignored and $X^a_e(1), X^s_e(1)$ are not observed. The predictive score is computed at time $t=0$.
-- We allow $\rho_e$ to be an arbitrary function, but generally presume it is an estimator of $\rho_e(x^s, x^a) \approx \mathbb{E} [Y_e|X^s_e(0) = x^s, X^a_e(0) = x^a]= f_e(x^s, g^a_e(\rho_{e−1}, x^a))] \triangleq \tilde{f}_e (x^s, x^a)$
+- We allow $\rho_e$ to be an arbitrary function, but generally presume it is an estimator of $\rho_e(x^s, x^a) \approx E [Y_e|X^s_e(0) = x^s, X^a_e(0) = x^a]= f_e(x^s, g^a_e(\rho_{e-1}, x^a)) \triangleq \tilde{f}_e(x^s, x^a) $
 - $\forall e f_e = \mathbb{E}[Y_e|X_e] = \mathbb{E}[Y_e|X_e(1)]$: $Y_e$ depends on $X_e(1)$; that is, after any potential interventions
 - a higher value $\rho$ means a larger intervention is made (we assume $g^a_e$ to be deterministic, but random valued functions may more accurately capture the
 uncertainty linked to real-world interventions)
