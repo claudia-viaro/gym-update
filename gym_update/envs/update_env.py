@@ -131,7 +131,7 @@ class UpdateEnv(gym.Env):
     # decide on \rho_0, which will be retained to the next epoch
     model_rho = LogisticRegression().fit(pat_01[:, 1:3], np.ravel(pat_01[:, 0].astype(int)))                        
     thetas_0 = np.array([model_rho.intercept_[0], model_rho.coef_[0,0] , model_rho.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
-    patients_model = np.hstack([np.ones((self.size, 1)), np.reshape(pat_01, (self.size, 2))])
+    patients_model = np.hstack([np.ones((self.size, 1)), self.patients])
     rho_0 = (1/(1+np.exp(-(np.matmul(patients_model, thetas_0[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
       
     
