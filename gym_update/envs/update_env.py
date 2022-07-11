@@ -75,7 +75,7 @@ class UpdateEnv(gym.Env):
     
     # observe Y_1(1)
     Y_1 = np.random.binomial(1, 0.2, (self.size, 1))
-    pat_e1 = np.hstack([Y_1, np.reshape(pat_e0[:, 1], (size, 1)), np.reshape(Xa, (size, 1))]) #shape (size, 3), (Y, Xs, Xa)                
+    pat_e1 = np.hstack([Y_1, np.reshape(pat_e0[:, 1], (self.size, 1)), np.reshape(Xa, (self.size, 1))]) #shape (size, 3), (Y, Xs, Xa)                
     
     
     # decide on \rho_e. we'll use actions produced by NN when feeding the input values (self.patients) returned by this function
@@ -83,10 +83,10 @@ class UpdateEnv(gym.Env):
                           
     #-----------------------------------------------------------------------------------
     # naive result, uses variables without intervention. use pat_e0, Y_e
-    pat_naive =  np.hstack([Y_1, np.reshape(pat_e0, (size, 2))])  
+    pat_naive =  np.hstack([Y_1, np.reshape(pat_e0, (self.size, 2))])  
     model_naive = LogisticRegression().fit(pat_naive[:, 1:3], np.ravel(pat_naive[:, 0].astype(int)))                        
     thetas_naive = np.array([model_naive.intercept_[0], model_naive.coef_[0,0] , model_naive.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
-    pat_naive00 = np.hstack([np.ones((self.size, 1)), np.reshape(pat_e0, (size, 2))])
+    pat_naive00 = np.hstack([np.ones((self.size, 1)), np.reshape(pat_e0, (self.size, 2))])
     rho_naive = (1/(1+np.exp(-(np.matmul(pat_naive00, thetas_naive[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
                             
     #-----------------------------------------------------------------------------------                        
