@@ -86,7 +86,7 @@ class UpdateEnv(gym.Env):
     pat_naive =  np.hstack([Y_1, pat_e0[:, 1:3]])  
     model_naive = LogisticRegression().fit(pat_naive[:, 1:3], np.ravel(pat_naive[:, 0].astype(int)))                        
     thetas_naive = np.array([model_naive.intercept_[0], model_naive.coef_[0,0] , model_naive.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
-    pat_naive00 = np.hstack([np.ones((self.size, 1)), np.reshape(pat_e0, (self.size, 2))])
+    pat_naive00 = np.hstack([np.ones((self.size, 1)), pat_e0])
     rho_naive = (1/(1+np.exp(-(np.matmul(pat_naive00, thetas_naive[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
                             
     #-----------------------------------------------------------------------------------                        
