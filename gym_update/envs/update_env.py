@@ -87,6 +87,7 @@ class UpdateEnv(gym.Env):
     model_noA = LogisticRegression().fit(pat_noA[:, 1:3], np.ravel(pat_noA[:, 0].astype(int)))                        
     thetas_noA = np.array([model_noA.intercept_[0], model_noA.coef_[0,0] , model_noA.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
     rho_noA = (1/(1+np.exp(-(np.matmul(pat_e0, thetas_noA[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
+    f_noA = 1/(1+ np.exp(-pat_e0[:, 1]-pat_e0[:, 2]))
                             
     #-----------------------------------------------------------------------------------                        
     # we return:
@@ -101,13 +102,14 @@ class UpdateEnv(gym.Env):
     if np.mean(rho_0) >= 0.3:
       done = True
     else:
-      done = False
-        
+      done = False       
     
     
     
   
-    return {"patients": self.patients, "f_e": f_e, "rho_e": rho_0, "naive_patients": pat_noA[:, 1:3], "naive_rho": rho_noA,"done": done}
+    return {"patients": self.patients, "predscore": f_e, "rho_e": rho_0, 
+            "patients_noA": pat_noA[:, 1:3], "rho_noA": rho_noA, "predscore_noA": f_noA, 
+            "done": done}
     
     
 #reset state and horizon    
