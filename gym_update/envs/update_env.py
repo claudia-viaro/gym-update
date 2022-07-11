@@ -69,7 +69,7 @@ class UpdateEnv(gym.Env):
     #-----------------------------------------------------------------------------------
     # e=1, t=1
     #update Xa_1(0) to Xa_1(1) with intervention
-    Xa = ge # size
+    Xa = g_e # size
     # predict f_1 = E[Y_1|X_1(1)] 
     f_e = 1/(1+ np.exp(-pat_e0[:, 1]-Xa))
     
