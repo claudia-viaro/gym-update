@@ -137,4 +137,4 @@ class UpdateEnv(gym.Env):
     
     # i don't really think there's need for initial actions any longer
     # f_0 and rho_0 are the same at e=0                                                        
-    return {"f_0": f_0, "patients": self.patients, "rho0": rho_0, "thetas0", thetas_0}
+    return {"f_0": f_0, "patients": self.patients, "rho0": rho_0, "thetas0": thetas_0}
