@@ -29,9 +29,9 @@ class UpdateEnv(gym.Env):
     self.max_Xas=np.array([math.inf, math.inf])
     
     #set OBSERVATION SPACE
-    #it is made of values for Xa, Xs for each observation
-    self.observation_space = spaces.Box(low=np.float32(self.min_Xas),
-                                        high=np.float32(self.max_Xas))
+    #it is made of values for f with shape (size, )
+    self.observation_space = spaces.Box(low=0, high=1, shape=(self.size, 1), dtype=np.float32)
+    #self.observation_space = spaces.Box(low=np.float32(self.min_Xas), high=np.float32(self.max_Xas))
         
     #set an initial state
     self.state=None 
