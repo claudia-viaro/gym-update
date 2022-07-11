@@ -82,11 +82,11 @@ class UpdateEnv(gym.Env):
     
                           
     #-----------------------------------------------------------------------------------
-    # naive result, uses variables without intervention. use pat_e0, Y_e
-    pat_naive =  np.hstack([Y_1, pat_e0[:, 1:3]])  
-    model_naive = LogisticRegression().fit(pat_naive[:, 1:3], np.ravel(pat_naive[:, 0].astype(int)))                        
-    thetas_naive = np.array([model_naive.intercept_[0], model_naive.coef_[0,0] , model_naive.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
-    rho_naive = (1/(1+np.exp(-(np.matmul(pat_e0, thetas_naive[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
+    # no actions, uses variables without intervention. use pat_e0, Y_e
+    pat_noA =  np.hstack([Y_1, pat_e0[:, 1:3]])  
+    model_noA = LogisticRegression().fit(pat_noA[:, 1:3], np.ravel(pat_noA[:, 0].astype(int)))                        
+    thetas_noA = np.array([model_noA.intercept_[0], model_noA.coef_[0,0] , model_noA.coef_[0,1]]) #thetas_n[0]: intercept; thetas_n[1]: coef for Xs, thetas_n[2] coef for Xa
+    rho_noA = (1/(1+np.exp(-(np.matmul(pat_e0, thetas_noA[:, None])))))  #prob of Y=1 # (sizex3) x (3x1) = (size, 1)  
                             
     #-----------------------------------------------------------------------------------                        
     # we return:
@@ -98,7 +98,7 @@ class UpdateEnv(gym.Env):
     
       
     #model performance should worsen, hence risk increase. we can stop when increase in risk exceeds 0.3
-    if np.mean(rho_e) >= 0.3:
+    if np.mean(rho_0) >= 0.3:
       done = True
     else:
       done = False
@@ -107,7 +107,7 @@ class UpdateEnv(gym.Env):
     
     
   
-    return {"patients": self.patients, "f_e": f_e, "rho_e": rho_0, "naive_patients": pat_naive[:, 1:3], "naive_rho": rho_naive,"done": done}
+    return {"patients": self.patients, "f_e": f_e, "rho_e": rho_0, "naive_patients": pat_noA[:, 1:3], "naive_rho": rho_noA,"done": done}
     
     
 #reset state and horizon    
