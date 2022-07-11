@@ -11,7 +11,7 @@ import setuptools
 from pathlib import Path
 #from setuptools import setup
 setuptools.setup(name='gym_update',
-      version='0.3.0',
+      version='0.3.1',
       description="A OpenAI Gym Env for continuous control",
       long_description=Path("README.md").read_text(),
       long_description_content_type="text/markdown",
