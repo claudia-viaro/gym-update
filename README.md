@@ -54,7 +54,10 @@ Then the episodes repeat <br />
 ## state and action spaces:
 Action space: 3D space $\in [-2, 2]$. Actions represent the coefficients thetas of a logistic regression that will be run on the dataset of patients         <br />    
 
-Observation space: 2D space $\in [0, \infty)$. States represent values for the covariates $X^a, X^s$  <br />
+Observation space: aD space $\in [0, \infty)$. States represent values for the predictive score $f_e$  <br />
+
+## A write up
+[Here's](https://www.overleaf.com/project/62b89d3b150bcf81e449aeb3) the most recent write up regarding the envoronment and algorithms applied to it.
 
 ## To install
 - git clone https://github.com/claudia-viaro/gym-update.git
